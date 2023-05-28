@@ -9,7 +9,7 @@ namespace FluentRequests.Lib.Validation.Base
 
         protected Rule<TValue> Second { get; set; }
 
-        public BinaryRule(Rule<TValue> first, Rule<TValue> second, ValidationState state=null)
+        public BinaryRule(Rule<TValue> first, Rule<TValue> second, Informing state=null)
         {
             First = first;
             Second = second;

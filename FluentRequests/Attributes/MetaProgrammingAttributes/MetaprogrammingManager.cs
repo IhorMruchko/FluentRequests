@@ -13,10 +13,10 @@ namespace FluentRequests.Lib.Attributes.MetaProgrammingAttributes
                .Or(MethodInfoRules.ContainsAttribute<TestAttribute>())
                .Or(MethodInfoRules.ContainsAttribute<DetestAttribute>())
                .Or(MethodInfoRules.ContainsAttribute<ConvertAttribute>())
-            .And(MethodInfoRules.IsPublic(RulesStates.Warn)
-                                .And(MethodInfoRules.IsStatic(RulesStates.Warn))
-                                .And(MethodInfoRules.IsAbstract().Not(state: RulesStates.Warn))
-                                .And(MethodInfoRules.HasReturningType(typeof(RuleBase)), state: RulesStates.Warn));        
+            .And(MethodInfoRules.IsPublic(InformingLevels.Warn)
+               .And(MethodInfoRules.IsStatic(InformingLevel.Warning))
+               .And(MethodInfoRules.IsAbstract(InformingLevel.Warning).Not())
+               .And(MethodInfoRules.HasReturningType(typeof(RuleBase), new Warning())));
         
         public static void Generate()
         {

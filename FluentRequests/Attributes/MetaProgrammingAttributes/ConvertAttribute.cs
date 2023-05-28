@@ -1,4 +1,5 @@
-﻿using FluentRequests.Lib.Extensions;
+﻿using FluentRequests.Lib.Attributes.ParameterAttributes;
+using FluentRequests.Lib.Extensions;
 using System;
 using System.IO;
 using System.Linq;
@@ -24,7 +25,6 @@ namespace FluentRequests.Lib.Attributes.MetaProgrammingAttributes
                 .Select(p => $"using {p.ParameterType.Namespace};")
                 .Concat(new string[]
                 {
-                    "using FluentRequests.Lib.Attributes.ParameterAttributes;",
                     "using FluentRequests.Lib.Validation.Rules;"
                 })
                 .Distinct().OrderBy(n => n.Length));
@@ -36,14 +36,25 @@ namespace FluentRequests.Lib.Attributes.MetaProgrammingAttributes
             {
                 System.IO.Directory.CreateDirectory(filePath);
             }
-            filePath = Path.Combine(filePath, methodName + "Attribute" + Constants.FileExtension);
-            File.WriteAllText(filePath, string.Format(Constants.Pattern,
-                                                      namespaces,
-                                                      className,
-                                                      methodName,
-                                                      constructorParameters,
-                                                      calling,
-                                                      parameters));
+            var validationfilePath = Path.Combine(filePath, methodName + "ValidateAttribute" + Constants.FileExtension);
+            var constraintfilePath = Path.Combine(filePath, methodName + "ConstraintAttribute" + Constants.FileExtension);
+            File.WriteAllText(validationfilePath, string.Format(Constants.Pattern,
+                                                                namespaces,
+                                                                className,
+                                                                methodName,
+                                                                constructorParameters,
+                                                                calling,
+                                                                parameters,
+                                                                nameof(ValidateAttribute)));
+
+            File.WriteAllText(constraintfilePath, string.Format(Constants.Pattern,
+                                                               namespaces,
+                                                               className,
+                                                               methodName,
+                                                               constructorParameters,
+                                                               calling,
+                                                               parameters,
+                                                               nameof(ConstraintAttribute)));
         }
     }
 }

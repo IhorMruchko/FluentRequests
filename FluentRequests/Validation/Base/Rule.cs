@@ -7,11 +7,11 @@ namespace FluentRequests.Lib.Validation.Base
     {
         internal Func<TValue, bool> Constraint { get; set; }
 
-        internal ValidationState State { get; set; }
+        internal Informing State { get; set; }
 
         internal Func<TValue, string> Message { get; set; }        
 
-        public Rule(Func<TValue, bool> constraint, Func<TValue, string> message = null, ValidationState state = null)
+        public Rule(Func<TValue, bool> constraint, Func<TValue, string> message = null, Informing state = null)
         { 
             Constraint = constraint;
             State = state ?? new Ignore();
@@ -32,16 +32,16 @@ namespace FluentRequests.Lib.Validation.Base
             return false;
         }
 
-        public virtual Rule<TValue> And(Rule<TValue> another, Func<TValue, string> message = null, ValidationState state = null)
+        public virtual Rule<TValue> And(Rule<TValue> another, Func<TValue, string> message = null, Informing state = null)
             => new AndRule<TValue>(this, another, message, state);
 
-        public virtual Rule<TValue> Or(Rule<TValue> another, Func<TValue, string> message = null, ValidationState state = null) 
+        public virtual Rule<TValue> Or(Rule<TValue> another, Func<TValue, string> message = null, Informing state = null) 
             => new OrRule<TValue>(this, another, message, state);
 
-        public virtual Rule<TValue> Xor(Rule<TValue> another, Func<TValue, string> message = null, ValidationState state = null)
+        public virtual Rule<TValue> Xor(Rule<TValue> another, Func<TValue, string> message = null, Informing state = null)
             => new XorRule<TValue>(this, another, message, state);
 
-        public virtual Rule<TValue> Not(Func<TValue, string> message = null, ValidationState state = null) 
+        public virtual Rule<TValue> Not(Func<TValue, string> message = null, Informing state = null) 
             => new NotRule<TValue>(this, message, state);
 
         public static implicit operator Rule<TValue>(Func<TValue, bool> constraint)

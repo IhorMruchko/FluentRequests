@@ -4,8 +4,7 @@ using System;
 namespace FluentRequests.Lib.Attributes.ParameterAttributes
 {
     [AttributeUsage(AttributeTargets.Parameter)]
-    public class ParameterAttribute : Attribute
+    public abstract class ConstraintAttribute : ParameterAttribute
     {
-        public RuleBase Rule { get; protected set; }
     }
 }
