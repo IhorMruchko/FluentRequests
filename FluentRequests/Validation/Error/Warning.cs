@@ -2,7 +2,7 @@
 
 namespace FluentRequests.Lib.Validation.Error
 {
-    internal class Warning : Informing
+    public class Warning : Informing
     {
         public override void OnError(string errorMessage)
         {

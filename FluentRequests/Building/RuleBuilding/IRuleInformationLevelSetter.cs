@@ -4,8 +4,10 @@ namespace FluentRequests.Lib.Building.RuleBuilding
 {
     public interface IRuleInformationLevelSetter<TValue>
     {
-        IRuleMessageSetter<TValue> OnDefaultLevel();
+        IRuleOperationSetter<TValue> OnDefaultLevel();
 
-        IRuleMessageSetter<TValue> OnLevel(Informing state);
+        IRuleConstraintBuilder<TValue> OnLevel(Informing level);
+
+        IRuleConstraintBuilder<TValue> OnLevel(InformingLevel level);
     }
 }

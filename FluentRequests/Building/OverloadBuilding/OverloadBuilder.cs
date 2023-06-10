@@ -25,21 +25,21 @@ namespace FluentRequests.Lib.Building.OverloadBuilding
             return this;
         }
 
-        public IParametersSetter WithRequired<TArgument>(Func<IArgumentNameSetter<RequiredArgument<TArgument>, TArgument>, RequiredArgument<TArgument>> argument)
+        public IParametersSetter WithRequired<TArgument>(Func<IArgumentNameSetter<IArgumentCreator<RequiredArgument<TArgument> ,TArgument>, TArgument>, RequiredArgument<TArgument>> argument)
         {
             _overload.RequiredArguments.Add(argument(new RequiredArgumentBuilder<TArgument>()));
-            throw new NotImplementedException();
+            return this;
         }
 
         public IParametersSetter WithOptional<TArgument>(OptionalArgument<TArgument> argument)
         {
             _overload.OptionalArguments.Add(argument);
-            throw new NotImplementedException();
+            return this;
         }
 
-        public IParametersSetter WithOptional<TArgument>(Func<IArgumentNameSetter<OptionalArgument<TArgument>, TArgument>, RequiredArgument<TArgument>> argument)
+        public IParametersSetter WithOptional<TArgument>(Func<IArgumentNameSetter<IDefaultValueSetter<TArgument>, TArgument>, OptionalArgument<TArgument>> argument)
         {
-            _overload.RequiredArguments.Add(argument(new OptionalArgumentBuilder<TArgument>()));
+            _overload.OptionalArguments.Add(argument(new OptionalArgumentBuilder<TArgument>()));
             return this;
         }
 

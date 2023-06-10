@@ -1,10 +1,7 @@
-﻿using FluentRequests.Lib.Callable.Arguments;
-
-namespace FluentRequests.Lib.Building.ArgumentBuilding
+﻿namespace FluentRequests.Lib.Building.ArgumentBuilding
 {
-    public interface IArgumentNameSetter<TArgumentObject, TArgument>
-        where TArgumentObject : Argument<TArgument>
+    public interface IArgumentNameSetter<TArgumentBeforeEnd, TArgument>
     {
-        IHelpSetter<IConverterSetter<TArgumentObject, TArgument>> WithName(string name);
+        IHelpSetter<IConverterSetter<TArgumentBeforeEnd, TArgument>> WithName(string name);
     }
 }

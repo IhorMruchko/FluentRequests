@@ -1,23 +1,33 @@
-﻿using FluentRequests.Lib.Validation.Error;
-using System;
-
-namespace FluentRequests.Lib.Validation.Base
+﻿namespace FluentRequests.Lib.Validation.Base
 {
     public class NotRule<TValue> : Rule<TValue>
     {
-        public NotRule(Rule<TValue> first, Func<TValue, string> message = null, Informing state = null)
-            : base((value) => first.Validate(value) == false, message, state ?? first.State)
+        protected override string ConstraintPattern => "should not fit constraint";
+
+        public override bool Validate(object value)
         {
+            if (ValidateType(value, out var typedValue) == false)
+                return false;
+
+            if (Constraint(typedValue) == false)
+            {
+                PreviousResult = true;
+                return true;
+            }
+
+            PreviousResult = false;
+            return false;
         }
 
-        public NotRule(Func<TValue, bool> constraint, Func<TValue, string> message = null, Informing state = null)
-           : base((value) => constraint(value) == false, message, state)
+        internal override Rule<TValue> Not()
         {
-        }
-
-        public override Rule<TValue> Not(Func<TValue, string> message = null, Informing state = null)
-        {
-            return new Rule<TValue>(value => Constraint(value) == true, message, state);
+            return new UnaryRule<TValue>()
+            {
+                PropertiesSelector = PropertiesSelector,
+                Constraint = v => Constraint(v) == false,
+                Level = Level,
+                ConstraintDescription = ConstraintDescription
+            };
         }
     }
 }

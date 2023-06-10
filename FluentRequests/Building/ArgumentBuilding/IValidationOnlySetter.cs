@@ -3,10 +3,8 @@ using FluentRequests.Lib.Validation.Base;
 
 namespace FluentRequests.Lib.Building.ArgumentBuilding
 {
-    public interface IValidationOnlySetter<TArgumentObject, TArgument> :
-        IArgumentFinalizer<TArgumentObject, TArgument>
-        where TArgumentObject : Argument<TArgument>
+    public interface IValidationOnlySetter<TArgumentBeforeEnd, TArgument> : IArgumentFinalizer<TArgumentBeforeEnd, TArgument>
     {
-        IArgumentFinalizer<TArgumentObject, TArgument> WithValidator(Rule<TArgument> validation);
+        IArgumentFinalizer<TArgumentBeforeEnd, TArgument> WithValidator(Rule<TArgument> validation);
     }
 }

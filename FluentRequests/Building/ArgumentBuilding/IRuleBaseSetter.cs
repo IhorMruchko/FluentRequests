@@ -2,10 +2,9 @@
 
 namespace FluentRequests.Lib.Building.ArgumentBuilding
 {
-    public interface IRuleBaseSetter<TArgumentObject, TArgument> : 
-        IConstraintSetter<TArgumentObject, TArgument>, 
-        IValidationSetter<TArgumentObject, TArgument>
-        where TArgumentObject : Argument<TArgument>
+    public interface IRuleBaseSetter<TArgumentBeforeEnd, TArgument> : 
+        IConstraintSetter<TArgumentBeforeEnd, TArgument>, 
+        IValidationSetter<TArgumentBeforeEnd, TArgument>
     {
     }
 }

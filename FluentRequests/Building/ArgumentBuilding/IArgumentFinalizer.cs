@@ -2,9 +2,8 @@
 
 namespace FluentRequests.Lib.Building.ArgumentBuilding
 {
-    public interface IArgumentFinalizer<TArgumentObject, TArgument>
-        where TArgumentObject : Argument<TArgument>
+    public interface IArgumentFinalizer<TArgumentBeforeEnd, TArgument>
     {
-        TArgumentObject EndInit();
+        TArgumentBeforeEnd Instatniate();
     }
 }

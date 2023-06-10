@@ -5,15 +5,16 @@ using System;
 
 namespace FluentRequests.Lib.Building.ArgumentBuilding
 {
-    public abstract class ArgumentBuilder<TArgumentObject, TArgument> 
-        : IArgumentNameSetter<TArgumentObject, TArgument>,
-          IHelpSetter<IConverterSetter<TArgumentObject, TArgument>>,
-          IConstraintSetter<TArgumentObject, TArgument>,
-          IConverterSetter<TArgumentObject, TArgument>,
-          IArgumentFinalizer<TArgumentObject, TArgument>,
-          IRuleBaseSetter<TArgumentObject, TArgument>,
-          IValidationOnlySetter<TArgumentObject, TArgument>,
-          IConstraintOnlySetter<TArgumentObject, TArgument>
+    public abstract class ArgumentBuilder<TInitializationState, TArgumentObject, TArgument>
+        : IArgumentNameSetter<TInitializationState, TArgument>,
+          IHelpSetter<IConverterSetter<TInitializationState, TArgument>>,
+          IConstraintSetter<TInitializationState, TArgument>,
+          IConverterSetter<TInitializationState, TArgument>,
+          IArgumentFinalizer<TInitializationState, TArgument>,
+          IRuleBaseSetter<TInitializationState, TArgument>,
+          IValidationOnlySetter<TInitializationState, TArgument>,
+          IConstraintOnlySetter<TInitializationState, TArgument>,
+          IArgumentCreator<TArgumentObject, TArgument>
         where TArgumentObject : Argument<TArgument>
     {
         protected string Name { get; set; }
@@ -26,59 +27,62 @@ namespace FluentRequests.Lib.Building.ArgumentBuilding
 
         protected Rule<TArgument> Validation { get; set; }
 
-        public IHelpSetter<IConverterSetter<TArgumentObject, TArgument>> WithName(string name)
+        public IHelpSetter<IConverterSetter<TInitializationState, TArgument>> WithName(string name)
         {
             Name = name;
             return this;
         }
 
-        public IConverterSetter<TArgumentObject, TArgument> WithHelp(string helpDescription)
+        public IConverterSetter<TInitializationState, TArgument> WithHelp(string helpDescription)
         {
             Help = helpDescription;
             return this;
         }
 
-        public IConstraintSetter<TArgumentObject, TArgument> WithConverter(Converter<string, TArgument> converter)
+        public IConstraintSetter<TInitializationState, TArgument> WithConverter(Converter<string, TArgument> converter)
         {
             Converter = converter;
             return this;
         }
 
-        public IRuleBaseSetter<TArgumentObject, TArgument> UseDefaultConverter()
+        public IRuleBaseSetter<TInitializationState, TArgument> UseDefaultConverter()
         {
             Converter = DefaultConverters.GetConverterFor<TArgument>();
             return this;
         }
 
-        public IArgumentFinalizer<TArgumentObject, TArgument> WithValidator(Rule<TArgument> validation)
+        public IArgumentFinalizer<TInitializationState, TArgument> WithValidator(Rule<TArgument> validation)
         {
             Validation = validation;
             return this;
         }
         
-        public IArgumentFinalizer<TArgumentObject, TArgument> WithConstraint(Rule<TArgument> constraint)
+        public IArgumentFinalizer<TInitializationState, TArgument> WithConstraint(Rule<TArgument> constraint)
         {
             Constraint = constraint;
             return this;
         }
 
-        IValidationOnlySetter<TArgumentObject, TArgument> IConstraintSetter<TArgumentObject, TArgument>.WithConstraint(Rule<TArgument> constraint)
+        IValidationOnlySetter<TInitializationState, TArgument> IConstraintSetter<TInitializationState, TArgument>.WithConstraint(Rule<TArgument> constraint)
         {
             Constraint = constraint;
             return this;
         }
 
-        IRuleBaseSetter<TArgumentObject, TArgument> IConverterSetter<TArgumentObject, TArgument>.WithConverter(Converter<string, TArgument> converter)
+        IRuleBaseSetter<TInitializationState, TArgument> IConverterSetter<TInitializationState, TArgument>.WithConverter(Converter<string, TArgument> converter)
         {
             Converter = converter;
             return this;
         }
 
-        IConstraintOnlySetter<TArgumentObject, TArgument> IValidationSetter<TArgumentObject, TArgument>.WithValidator(Rule<TArgument> validation)
+        IConstraintOnlySetter<TInitializationState, TArgument> IValidationSetter<TInitializationState, TArgument>.WithValidator(Rule<TArgument> validation)
         {
             Validation = validation;
             return this;
         }
+        
+        public abstract TInitializationState Instatniate();
+       
         public abstract TArgumentObject EndInit();
     }
 }

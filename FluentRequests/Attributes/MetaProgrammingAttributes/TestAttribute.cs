@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FluentRequests.Lib.Extensions;
+using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -33,36 +34,49 @@ namespace FluentRequests.Lib.Attributes.MetaProgrammingAttributes
 
         public override void Apply(MethodInfo method)
         {
-            var methodName = method.Name;
-            var parameters = string.Join(", ", method.GetParameters().Select(p => p.Name));
-            var namespaces = string.Join("\r\n", method.GetParameters()
-                .Select(p => $"using {p.ParameterType.Namespace};")
-                .Concat(new string[]
-                {
-                    "using FluentRequests.Lib.Validation.Rules;"
-                })
-                .Distinct().OrderBy(n => n.Length));
-            var className = method.DeclaringType.Name;
-            var calling = $"{className}.{methodName}";
+            method.Decompose()
+                  .Get(m => m.Name, out var methodName)
+                  .Get(m => m.GetParameters().Select(p => p.Name), out var parameters)
+                  .Get(m => string.Join("\r\n", m.GetParameters()
+                                                      .Select(p => $"using {p.ParameterType.Namespace};")
+                                                      .Concat(new string[] { "using FluentRequests.Lib.Validation.Rules;" })
+                                                      .Distinct()
+                                                      .OrderBy(n => n.Length)), out var namespaces)
+                  .Get(m => m.DeclaringType.Name, out var className)
+                  .Get(m => $"{m.DeclaringType.Name}.{m.Name}", out var calling);
+
+            ValidTestCases.Decompose()
+                .Get(cases => cases == null
+                              ? string.Empty
+                              : "\r\n\t" + string.Join("\r\n\t", cases.Select(testCase => $"[TestCase({testCase})]")), out var testCaseAttributes)
+                .Get(cases => cases == null
+                              ? string.Empty
+                              : "object value", out var methodParameter)
+                .Get(cases => cases == null
+                              ? "null"
+                              : "value", out var invokeParameter);
+
+            InvalidTestCases.Decompose()
+                .Get(cases => cases == null
+                              ? string.Empty
+                              : "\r\n\t" + string.Join("\r\n\t", cases.Select(testCase => $"[TestCase({testCase})]")), out var invalidTestCaseAttributes)
+                .Get(cases => cases == null
+                              ? string.Empty
+                              : "object value", out var invalidMethodParameter)
+                .Get(cases => cases == null
+                              ? "null"
+                              : "value", out var invalidInvokeParameter);
+
+            InitParameters.Decompose()
+                          .Get(@params => @params == null ? string.Empty : string.Join(", ", @params), out var initParameters)
+                          .Get(@params => @params == null || WithParameters == false ? string.Empty : "_" + string.Join("_", @params), out var namingParameters);
+
+            Directory.Decompose()
+                     .Get(dir => Path.Combine(dir, className + "Tests"), out var testDirectory)
+                     .Get(dir => Path.Combine(testDirectory, methodName + (WithParameters ? TestNumber.ToString() : string.Empty) + "Test" + Constants.FileExtension), out var filePath);
+
+            testDirectory.CreateIfNotExists();
             
-            var (testCaseAttributes, methodParameter, invokeParameter) = ValidTestCases == null 
-                ? (string.Empty, string.Empty, "null")
-                : ("\r\n\t" + string.Join("\r\n\t", ValidTestCases.Select(testCase => $"[TestCase({testCase})]")), "object value", "value");    
-            
-            var (invalidTestCaseAttributes, invalidMethodParameter, invalidInvokeParameter) = InvalidTestCases == null 
-                ? (string.Empty, string.Empty, "null")
-                : ("\r\n\t" + string.Join("\r\n\t", InvalidTestCases.Select(testCase => $"[TestCase({testCase})]")), "object value", "value");
-
-
-            var initParameters = InitParameters == null ? string.Empty : string.Join(", ", InitParameters);
-            var namingParameters = WithParameters == false || InitParameters == null ? string.Empty : "_" + string.Join("_", InitParameters);
-
-            var filePath = Path.Combine(Directory, className + "Tests");
-            if (System.IO.Directory.Exists(filePath) == false)
-            {
-                System.IO.Directory.CreateDirectory(filePath);
-            }
-            filePath = Path.Combine(filePath, methodName + (WithParameters ? TestNumber.ToString() : string.Empty) + "Test" + Constants.FileExtension);
             File.WriteAllText(filePath, string.Format(Constants.TestPattern,
                                                       namespaces,
                                                       className,

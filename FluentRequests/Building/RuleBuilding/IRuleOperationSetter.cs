@@ -13,18 +13,6 @@ namespace FluentRequests.Lib.Building.RuleBuilding
 
         IRuleOperationSetter<TValue> Or(Func<IRuleBodySetter<TValue>, Rule<TValue>> anotherBuilding);
 
-        IRuleOperationSetter<TValue> Xor(Rule<TValue> another);
-
-        IRuleOperationSetter<TValue> Xor(Func<IRuleBodySetter<TValue>, Rule<TValue>> anotherBuilding);
-
-        IRuleOperationSetter<TValue> Eq(Rule<TValue> another);
-
-        IRuleOperationSetter<TValue> Eq(Func<IRuleBodySetter<TValue>, Rule<TValue>> anotherBuilding);
-
-        IRuleOperationSetter<TValue> Implication(Rule<TValue> another);
-
-        IRuleOperationSetter<TValue> Implication(Func<IRuleBodySetter<TValue>, Rule<TValue>> anotherBuilding);
-
         IRuleOperationSetter<TValue> Not();
     }
 }

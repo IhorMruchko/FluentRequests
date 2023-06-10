@@ -1,16 +1,19 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Attributes\ToClassConverter.cs~RF293ead7c.TMP" />
-    <None Remove="Validation\Base\AndRule.cs~RF32c3b3d7.TMP" />
+    <None Remove="States\TerminateRoutingState.cs~RF854678.TMP" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.6.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Attributes\ParameterAttributes\IntRulesAttributes\" />
   </ItemGroup>
 
 </Project>

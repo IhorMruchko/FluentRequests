@@ -3,7 +3,7 @@
 namespace FluentRequests.Lib.Building.ArgumentBuilding
 {
     public class RequiredArgumentBuilder<TArgument> : 
-        ArgumentBuilder<RequiredArgument<TArgument>, TArgument>
+        ArgumentBuilder<IArgumentCreator<RequiredArgument<TArgument>, TArgument>, RequiredArgument<TArgument>, TArgument>
     {
         public override RequiredArgument<TArgument> EndInit()
             => new RequiredArgument<TArgument>()
@@ -14,5 +14,8 @@ namespace FluentRequests.Lib.Building.ArgumentBuilding
                 Validation = Validation,
                 Constraint = Constraint,
             };
+
+        public override IArgumentCreator<RequiredArgument<TArgument>, TArgument> Instatniate()
+            => this;
     }
 }

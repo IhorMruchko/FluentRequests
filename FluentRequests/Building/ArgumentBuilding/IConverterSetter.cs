@@ -3,11 +3,10 @@ using System;
 
 namespace FluentRequests.Lib.Building.ArgumentBuilding
 {
-    public interface IConverterSetter<TArgumentObject, TArgument> : IAfterHelpSetter
-        where TArgumentObject : Argument<TArgument>
+    public interface IConverterSetter<TArgumentBeforeEnd, TArgument> : IAfterHelpSetter
     {
-        IRuleBaseSetter<TArgumentObject, TArgument> WithConverter(Converter<string, TArgument> converter);
+        IRuleBaseSetter<TArgumentBeforeEnd, TArgument> WithConverter(Converter<string, TArgument> converter);
 
-        IRuleBaseSetter<TArgumentObject, TArgument> UseDefaultConverter();
+        IRuleBaseSetter<TArgumentBeforeEnd, TArgument> UseDefaultConverter();
     }
 }

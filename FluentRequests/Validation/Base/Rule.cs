@@ -1,50 +1,63 @@
-﻿using FluentRequests.Lib.Validation.Error;
+﻿using FluentRequests.Lib.Building.RuleBuilding;
+using FluentRequests.Lib.Validation.Error;
 using System;
 
 namespace FluentRequests.Lib.Validation.Base
 {
-    public class Rule<TValue> : RuleBase
+    public abstract class Rule<TValue> : RuleBase
     {
         internal Func<TValue, bool> Constraint { get; set; }
 
-        internal Informing State { get; set; }
+        internal Informing Level { get; set; } = new Ignore();
 
-        internal Func<TValue, string> Message { get; set; }        
+        internal Func<TValue, string> PropertiesSelector { get; set; }
 
-        public Rule(Func<TValue, bool> constraint, Func<TValue, string> message = null, Informing state = null)
-        { 
-            Constraint = constraint;
-            State = state ?? new Ignore();
-            Message = message;
+        internal string ConstraintDescription { get; set; }
+
+        protected virtual string ConstraintPattern { get; } = "is not fit constraint";
+
+        public static IRuleBodySetter<TValue> BeginInit()
+            => new RuleBuilder<TValue>();
+
+        public IRuleOperationSetter<TValue> InitOperations()
+            => new RuleBuilder<TValue>(this);
+
+        public override void DisplayMessage(object value)
+        {
+            if (PreviousResult == true)
+                return;
+
+            Level.OnError(GetMessage(value));
         }
 
-        public override bool Validate(object value)
+        public override bool ValidateWithError(object value)
         {
-            if (value is TValue val == false)
-            {
-                State.OnError($"{value.GetType().Name} is not equal to {typeof(TValue)}");
-                return false;
-            }
-            
-            if (Constraint(val)) return true;
+            if (Validate(value))
+                return true;
 
-            State.OnError(Message?.Invoke(val));
+            DisplayMessage(value);
             return false;
         }
 
-        public virtual Rule<TValue> And(Rule<TValue> another, Func<TValue, string> message = null, Informing state = null)
-            => new AndRule<TValue>(this, another, message, state);
+        public override string GetMessage(object value)
+            => PropertiesSelector is null || ConstraintDescription is null
+            ? $"Invalid value{value}"
+            : value is TValue val
+            ? $"{PropertiesSelector(val)} {ConstraintPattern} `{ConstraintDescription}`."
+            : $"{value.GetType().Name} is not equal to {typeof(TValue)}";
 
-        public virtual Rule<TValue> Or(Rule<TValue> another, Func<TValue, string> message = null, Informing state = null) 
-            => new OrRule<TValue>(this, another, message, state);
+        internal abstract Rule<TValue> Not();
 
-        public virtual Rule<TValue> Xor(Rule<TValue> another, Func<TValue, string> message = null, Informing state = null)
-            => new XorRule<TValue>(this, another, message, state);
-
-        public virtual Rule<TValue> Not(Func<TValue, string> message = null, Informing state = null) 
-            => new NotRule<TValue>(this, message, state);
-
-        public static implicit operator Rule<TValue>(Func<TValue, bool> constraint)
-            => new Rule<TValue>(constraint);
+        protected bool ValidateType(object value, out TValue typedValue)
+        {
+            typedValue = default;
+            if (value is TValue val == false)
+            {
+                Level.OnError($"{value.GetType().Name} is not equal to {typeof(TValue)}");
+                return false;
+            }
+            typedValue = val;
+            return true;
+        }
     }
 }

@@ -17,44 +17,50 @@ namespace FluentRequests.Lib.Attributes.MetaProgrammingAttributes
 
         public override void Apply(MethodInfo method)
         {
-            var methodName = method.Name;
-            var notOptionalParameters = method.GetParameters().Where(p => p.IsOptional == false).ToArray();
-            var constructorParameters = string.Join(", ", notOptionalParameters.Select(p => $"{p.Display()}"));
-            var parameters = string.Join(", ", notOptionalParameters.Select(p => p.Name));
-            var namespaces = string.Join("\r\n", notOptionalParameters
-                .Select(p => $"using {p.ParameterType.Namespace};")
-                .Concat(new string[]
-                {
-                    "using FluentRequests.Lib.Validation.Rules;"
-                })
-                .Distinct().OrderBy(n => n.Length));
-            var className = method.DeclaringType.Name;
-            var calling = $"{className}.{methodName}";
+            method.Decompose()
+                  .Get(m => m.Name, out var methodName)
+                  .Get(m => m.GetParameters().ToArray(), out var parameters)
+                  .Get(m => m.DeclaringType.Name, out var className)
+                  .Get(m => $"{m.DeclaringType.Name}.{m.Name}", out var calling);
 
-            var filePath = Path.Combine(Directory, className + "Attributes");
-            if (System.IO.Directory.Exists(filePath) == false)
-            {
-                System.IO.Directory.CreateDirectory(filePath);
-            }
-            var validationfilePath = Path.Combine(filePath, methodName + "ValidateAttribute" + Constants.FileExtension);
-            var constraintfilePath = Path.Combine(filePath, methodName + "ConstraintAttribute" + Constants.FileExtension);
-            File.WriteAllText(validationfilePath, string.Format(Constants.Pattern,
+            parameters.Decompose()
+                      .Get(@params => string.Join(", ", @params.Select(p => $"{p.Display()}")), out var constructorParameters)
+                      .Get(@params => string.Join(", ", @params.Select(p => p.Name)), out var methodParameters)
+                      .Get(@params => string.Join("\r\n", parameters.Select(p => $"using {p.ParameterType.Namespace};")
+                                                                         .Concat(new string[] { "using FluentRequests.Lib.Validation.Rules;" })
+                                                                         .Distinct()
+                                                                         .OrderBy(n => n.Length)), out var namespaces);
+
+            Directory.Decompose()
+                     .Get(dir => Path.Combine(dir, className + "Attributes"), out var initialFolder)
+                     .Get(dir => Path.Combine(initialFolder, "ValidationAttributes"), out var validationAttributeFolder)
+                     .Get(dir => Path.Combine(initialFolder, "ConstraintAttributes"), out var constraintAttributeFolder)
+                     .Get(dir => Path.Combine(validationAttributeFolder, methodName + "ValidateAttribute" + Constants.FileExtension), out var validateFilePath)
+                     .Get(dir => Path.Combine(constraintAttributeFolder, methodName + "ConstraintAttribute" + Constants.FileExtension), out var constraintFilePath);
+
+            initialFolder.CreateIfNotExists();
+            validationAttributeFolder.CreateIfNotExists();
+            constraintAttributeFolder.CreateIfNotExists();
+
+            File.WriteAllText(validateFilePath, string.Format(Constants.Pattern,
+                                                              namespaces,
+                                                              className,
+                                                              methodName,
+                                                              constructorParameters,
+                                                              calling,
+                                                              methodParameters,
+                                                              nameof(ValidateAttribute),
+                                                              "Validation"));
+
+            File.WriteAllText(constraintFilePath, string.Format(Constants.Pattern,
                                                                 namespaces,
                                                                 className,
                                                                 methodName,
                                                                 constructorParameters,
                                                                 calling,
-                                                                parameters,
-                                                                nameof(ValidateAttribute)));
-
-            File.WriteAllText(constraintfilePath, string.Format(Constants.Pattern,
-                                                               namespaces,
-                                                               className,
-                                                               methodName,
-                                                               constructorParameters,
-                                                               calling,
-                                                               parameters,
-                                                               nameof(ConstraintAttribute)));
+                                                                methodParameters,
+                                                                nameof(ConstraintAttribute),
+                                                                "Constraint"));
         }
     }
 }

@@ -1,15 +1,14 @@
 ﻿using FluentRequests.Lib.Building.ArgumentBuilding;
+using FluentRequests.Lib.Extensions;
 
 namespace FluentRequests.Lib.Callable.Arguments
 {
     public class RequiredArgument<TArgument> : Argument<TArgument>
     {
-        public static IArgumentNameSetter<RequiredArgument<TArgument>, TArgument> BeginInit()
+        public static IArgumentNameSetter<IArgumentCreator<RequiredArgument<TArgument>, TArgument>, TArgument> BeginInit()
             => new RequiredArgumentBuilder<TArgument>();
 
-        public override bool Parse()
-        {
-            return true;
-        }
+        public override string ToString() 
+            => $"{typeof(TArgument).CodeName()} {Name}";
     }
 }

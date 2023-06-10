@@ -7,25 +7,46 @@ namespace FluentRequests.Lib.Validation.Rules
 {
     public static class MethodInfoRules
     {
-        public static Rule<MethodInfo> IsStatic(Informing state = null)
-            => new Rule<MethodInfo>(m => m.IsStatic, m => string.Format(Constants.Messages.METHOD_IS_NOT_STATIC, m.Name), state);
+        public static Rule<MethodInfo> IsStatic(InformingLevel level = InformingLevel.Ignore)
+            => Rule<MethodInfo>.BeginInit()
+                               .FromMethod(methodInfo => methodInfo.IsStatic)
+                               .OnLevel(level)
+                               .WithPropertySelector(methodInfo => $"Method '{methodInfo.Name}'")
+                               .WithConstraint("Method must be static")
+                               .EndInit();
         
-        public static Rule<MethodInfo> IsPublic(Informing state = null)
-            => new Rule<MethodInfo>(m => m.IsPublic, m => m.Name + " must be public!", state);
+        public static Rule<MethodInfo> IsPublic(InformingLevel level = InformingLevel.Ignore)
+            => Rule<MethodInfo>.BeginInit()
+                               .FromMethod(methodInfo => methodInfo.IsPublic)
+                               .OnLevel(level)
+                               .WithPropertySelector(methodInfo => $"Method '{methodInfo.Name}'")
+                               .WithConstraint("Method must be public")
+                               .EndInit();
 
-        public static Rule<MethodInfo> IsAbstract(Informing state = null)
-            => new Rule<MethodInfo>(m => m.IsAbstract, m => m.Name + " must be abstract!", state: state);
+        public static Rule<MethodInfo> IsAbstract(InformingLevel level = InformingLevel.Ignore)
+            => Rule<MethodInfo>.BeginInit()
+                               .FromMethod(methodInfo => methodInfo.IsAbstract)
+                               .OnLevel(level)
+                               .WithPropertySelector(methodInfo => $"Method '{methodInfo.Name}'")
+                               .WithConstraint("Method must be abstract")
+                               .EndInit();
 
-        public static NotRule<MethodInfo> ContainsAttribute<TAttribute>(Informing state = null)
+
+        public static Rule<MethodInfo> ContainsAttribute<TAttribute>(InformingLevel level = InformingLevel.Ignore)
             where TAttribute : Attribute
-            => new NotRule<MethodInfo>(m => m.GetCustomAttribute<TAttribute>() == null, state: state);
+            => Rule<MethodInfo>.BeginInit()
+                               .FromMethod(m => m.GetCustomAttribute<TAttribute>() != null)
+                               .OnLevel(level)
+                               .WithConstraint($"Method must contains {typeof(TAttribute).Name}.")
+                               .WithPropertySelector(m => $"Method '{m.Name}'")
+                               .EndInit();
 
-        public static Rule<MethodInfo> HasReturningType(Type expected, Informing state = null)
-            => new Rule<MethodInfo>(m => m.ReturnType.IsSubclassOf(expected), 
-                m => string.Format(Constants.Messages.METHOD_HAS_DIFFERENT_RETURNING_TYPE,
-                                               m.Name,
-                                               expected.Name,
-                                               m.ReturnType.Name), 
-                state);
+        public static Rule<MethodInfo> HasReturningType(Type expected, InformingLevel level = InformingLevel.Ignore)
+            => Rule<MethodInfo>.BeginInit()
+                               .FromMethod(m => m.ReturnType == expected || m.ReturnType.IsSubclassOf(expected))
+                               .OnLevel(level)
+                               .WithPropertySelector(m => $"Method '{m.Name}'")
+                               .WithConstraint($"Method should have returning type of {expected.Name}")
+                               .EndInit();
     }
 }

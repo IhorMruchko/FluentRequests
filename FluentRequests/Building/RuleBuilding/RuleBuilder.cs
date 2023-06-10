@@ -6,18 +6,19 @@ namespace FluentRequests.Lib.Building.RuleBuilding
 {
     public class RuleBuilder<TValue> : IRuleBodySetter<TValue>,
                                        IRuleInformationLevelSetter<TValue>,
-                                       IRuleMessageSetter<TValue>,
+                                       IRuleConstraintSetter<TValue>,
+                                       IPropertySelectorSetter<TValue>,
+                                       IOnlyConstraintSetter<TValue>,
+                                       IOnlyPropertySelectorSetter<TValue>,
                                        IRuleOperationSetter<TValue>,
                                        IRuleFinalizer<TValue>,
-                                       IRuleEditer<TValue>
+                                       IRuleConstraintBuilder<TValue>
     {
-        private Rule<TValue> _rule = new Rule<TValue>(null, null, null);
-        
-        public RuleBuilder() { }
+        private Rule<TValue> _rule;
 
-        public RuleBuilder(Rule<TValue> rule)
+        public RuleBuilder(Rule<TValue> rule = null)
         {
-            _rule = rule;
+            _rule = rule ?? new UnaryRule<TValue>();
         }
 
         public IRuleInformationLevelSetter<TValue> FromMethod(Func<TValue, bool> method)
@@ -26,27 +27,45 @@ namespace FluentRequests.Lib.Building.RuleBuilding
             return this;
         }
 
-        public IRuleMessageSetter<TValue> OnDefaultLevel()
+        public IRuleOperationSetter<TValue> OnDefaultLevel()
         {
-            //_rule.InformingLevel = new Ignore();
+            _rule.Level = new Ignore();
             return this;
         }
 
-        public IRuleMessageSetter<TValue> OnLevel(Informing state)
+        public IRuleConstraintBuilder<TValue> OnLevel(Informing level)
         {
-            //_rule.InformingLevel = state ?? new Ignore();
+            _rule.Level = level ?? InformingLevels.Ignore;
             return this;
         }
 
-        public IRuleMessageSetter<TValue> OnLevel(InformingLevel level)
-            => OnLevel(InformingLevels.GetLevel(level));
-
-        public IRuleOperationSetter<TValue> WithMessage(string message)
-            => WithMessage(value => message);
-
-        public IRuleOperationSetter<TValue> WithMessage(Func<TValue, string> messageBuilder)
+        public IRuleConstraintBuilder<TValue> OnLevel(InformingLevel level)
         {
-            _rule.Message = messageBuilder;
+            _rule.Level = InformingLevels.GetLevel(level) ?? new Ignore();
+            return this;
+        }
+
+        public IOnlyPropertySelectorSetter<TValue> WithConstraint(string message)
+        {
+            _rule.ConstraintDescription = message;
+            return this;
+        }
+
+        public IOnlyConstraintSetter<TValue> WithPropertySelector(Func<TValue, string> selector)
+        {
+            _rule.PropertiesSelector = selector;
+            return this;
+        }
+
+        IRuleOperationSetter<TValue> IOnlyPropertySelectorSetter<TValue>.WithPropertySelector(Func<TValue, string> selector)
+        {
+            _rule.PropertiesSelector = selector;
+            return this;
+        }
+
+        IRuleOperationSetter<TValue> IOnlyConstraintSetter<TValue>.WithConstraint(string message)
+        {
+            _rule.ConstraintDescription = message;
             return this;
         }
 
@@ -67,36 +86,6 @@ namespace FluentRequests.Lib.Building.RuleBuilding
 
         public IRuleOperationSetter<TValue> Or(Func<IRuleBodySetter<TValue>, Rule<TValue>> anotherBuilding)
             => Or(anotherBuilding(new RuleBuilder<TValue>()));
-
-        public IRuleOperationSetter<TValue> Eq(Rule<TValue> another)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IRuleOperationSetter<TValue> Eq(Func<IRuleBodySetter<TValue>, Rule<TValue>> anotherBuilding)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IRuleOperationSetter<TValue> Xor(Rule<TValue> another)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IRuleOperationSetter<TValue> Xor(Func<IRuleBodySetter<TValue>, Rule<TValue>> anotherBuilding)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IRuleOperationSetter<TValue> Implication(Rule<TValue> another)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IRuleOperationSetter<TValue> Implication(Func<IRuleBodySetter<TValue>, Rule<TValue>> anotherBuilding)
-        {
-            throw new NotImplementedException();
-        }
 
         public IRuleOperationSetter<TValue> Not()
         {
