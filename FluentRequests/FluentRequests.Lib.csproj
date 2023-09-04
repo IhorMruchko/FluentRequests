@@ -16,4 +16,8 @@
     <Folder Include="Attributes\ParameterAttributes\IntRulesAttributes\" />
   </ItemGroup>
 
+	<PropertyGroup>
+		<PackageVersion>1.0.3</PackageVersion>
+	</PropertyGroup>
+
 </Project>

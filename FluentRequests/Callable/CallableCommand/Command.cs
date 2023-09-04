@@ -1,15 +1,14 @@
 ﻿using FluentRequests.Lib.Building.CommandBuilding;
 using FluentRequests.Lib.Callable.CallableOverload;
-using FluentRequests.Lib.States;
 using FluentRequests.Lib.States.Base;
-using FluentRequests.Lib.States.CommandRoutingStates;
+using FluentRequests.Lib.States.CommandStates;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace FluentRequests.Lib.Callable.CallableCommand
 {
-    public class Command : ICallable, IExecutable, IRoutingSource
+    public class Command : ICallable, IExecutable, IRoutingContext
     {
         public string Name { get; internal set; }
 
@@ -19,32 +18,25 @@ namespace FluentRequests.Lib.Callable.CallableCommand
         
         internal List<Overload> Overloads { get; } = new List<Overload>();
 
-        internal RoutingState State { get; private set; }
+        internal RoutingState CurrentState { get; set; }
 
-        RoutingState IRoutingSource.CurrentState => State;
+        RoutingState IRoutingContext.State => CurrentState;
 
         public static ICommandNameSetter BeginInit() 
             => new CommandBuilder();
 
         public bool IsCalled(IEnumerable<string> arguments)
         {
-            State = new CheckCommandNameRoutingState(arguments).SetSource(this);
-            while (State.CanContinueRouting())
-                State.Route();
-            return State is ExitRoutingState;
+            while (CurrentState.CanRoute())
+                CurrentState.Route(arguments);
+            return CurrentState is ExitRoutingState;
         }
 
-        public string Execute() 
-            => State.Execute();
+        public string Execute()
+            => CurrentState.Execute();
 
-        public async Task<string> ExecuteAsync() 
-            => await State.ExecuteAsync();
-
-        RoutingState IRoutingSource.ChangeState(RoutingState newState, float increment)
-        {
-            State = newState.SetSource(this).UpdateCoeficient(State.RoutingCoefficient + increment);
-            return newState;
-        }
+        public async Task<string> ExecuteAsync()
+            => await CurrentState.ExecuteAsync();
 
         public override string ToString() 
             => $"Information for command {Name}:\n" +
@@ -59,5 +51,11 @@ namespace FluentRequests.Lib.Callable.CallableCommand
                 $"{new string('\t', 2 + level)}{string.Join($"\n{new string('\t', 2 + level)}", InnerCommands.Select(c => c.ToInnerString(level + 1)))}" : string.Empty) +
                 (Overloads.Any() ? $"{new string('\t', 1 + level)}Overloads:\n" +
                 $"{new string('\t', 2 + level)}{string.Join($"\n{new string('\t', 2 + level)}", Overloads.Select(o => o.ToString()))}" : string.Empty);
+
+        void IRoutingContext.ChangeState(RoutingState newState)
+        {
+            CurrentState = newState;
+            CurrentState.SetContext(this);
+        }
     }
 }

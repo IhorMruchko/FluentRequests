@@ -65,7 +65,7 @@ namespace FluentRequests.Lib.Registering
             .EndInit();
 
 
-        internal static Register GetRegisterFromAssembly(Type assembly = null)
+        public static Register GetRegisterFromAssembly(Type assembly = null)
         {
             var commandTypes = Assembly.GetAssembly(assembly ?? typeof(Register))
                 .GetTypes()
@@ -79,7 +79,7 @@ namespace FluentRequests.Lib.Registering
             return RegisterInstance;
         }
 
-        internal static Register AddCommandFromType(Type target)
+        public static Register AddCommandFromType(Type target)
         {
             if (_isValidRegistrationType.ValidateWithError(target))
                 RegisterInstance.Add(GetCommandFromType(target));

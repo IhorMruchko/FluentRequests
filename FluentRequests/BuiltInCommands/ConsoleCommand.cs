@@ -24,6 +24,16 @@ namespace FluentRequests.Lib.BuiltInCommands
         [Help("Handle color of the console")]
         public class ColorHandling
         {
+            [Overload]
+            [Help("Sets fore and back color")]
+            public static string ChangeColors([Help("Fore color of the console")] ConsoleColor foreground,
+                                              [Help("Back color of the console")] ConsoleColor background,
+                                              [Help("Should clean the console")] bool cls=false)
+            {
+                var result = ForeColorHandling.ChangeForeColor(foreground, cls);
+                result += " " + BackColorHandling.ChangeBackColor(background, cls);
+                return result;
+            }
             [Command("foreground")]
             [Help("Provides access to the foreground console color")]
             public class ForeColorHandling

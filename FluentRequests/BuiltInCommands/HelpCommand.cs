@@ -21,7 +21,7 @@ namespace FluentRequests.Lib.BuiltInCommands
 
         [Overload]
         [Help("Gets help for the all roots commands or all commands.")]
-        public static string GetCommandHelp([Help("Defines is all command must be displayer with their inner commands and overloads.")] bool all = false)
+        public static string GetCommandHelp([Help("Defines is all command must be displayer with their inner commands and overloads.")] bool all = true)
             => all 
             ? $"All possible commands:\n\t{string.Join("\n\t", RegistrationManager.RoutingRegister.Commands.Select(c => c.ToInnerString()))}"
             : $"All root commands:\n\t{string.Join("\n\t", RegistrationManager.RoutingRegister.Commands.Select(c => $"{c.Name.ToUpper()} - {c.Help}"))}";

@@ -1,5 +1,7 @@
 ﻿using FluentRequests.Lib.Building.CommandBuilding;
 using FluentRequests.Lib.Callable.CallableCommand;
+using FluentRequests.Lib.States.Base;
+using FluentRequests.Lib.States.CommandStates;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,9 +32,12 @@ namespace FluentRequests.Lib.Registering
                 return "There no any commands.";
 
             foreach (var command in Commands)
+            {
+                ((IRoutingContext)command).ChangeState(new CheckCommandNameRoutingState());
                 command.IsCalled(arguments);
-
-            return Commands.OrderByDescending(c => c.State.RoutingCoefficient).First().Execute();
+            }
+            var sorded = Commands.OrderByDescending(c => c.CurrentState.RoutingPersentage).ToArray();
+            return Commands.OrderByDescending(c => c.CurrentState.RoutingPersentage).First().Execute();
         }
 
         public async Task<string> ExecuteAsync(IEnumerable<string> arguments)
@@ -41,9 +46,12 @@ namespace FluentRequests.Lib.Registering
                 return "There no any commands.";
 
             foreach (var command in Commands)
+            {
+                ((IRoutingContext)command).ChangeState(new CheckCommandNameRoutingState());
                 command.IsCalled(arguments);
+            }
 
-            return await Commands.OrderByDescending(c => c.State.RoutingCoefficient).First().ExecuteAsync();
+            return await Commands.OrderByDescending(c => c.CurrentState.PassedArgumentsAmount).First().ExecuteAsync();
         }
     }
 }

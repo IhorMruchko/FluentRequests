@@ -1,10 +1,10 @@
 ﻿using FluentRequests.Lib.Callable.CallableOverload;
+using FluentRequests.Lib.States.Base;
 using FluentRequests.Lib.Validation.Base;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace FluentRequests.Lib.States.Base
+namespace FluentRequests.Lib.States.OverloadStates
 {
     internal abstract class OverloadRoutingState : RoutingState
     {
@@ -20,27 +20,14 @@ namespace FluentRequests.Lib.States.Base
                                     .EndInit())
                         .Not()
                         .EndInit();
-        protected Overload OverloadSource { get; set; }
-
-        public OverloadRoutingState(IEnumerable<string> arguments): base(arguments) { }
-
-        public override RoutingState SetSource(IRoutingSource source)
-        {
-            base.SetSource(source);
-            if (source is Overload overload == false)
-                throw new ArgumentException($"Argument of the {nameof(SetSource)} must be of type {typeof(Overload).Name}");
-
-            OverloadSource = overload;
-
-            return this;
-        }
+        public Overload OverloadSource => (Overload)Context;
 
         protected (IEnumerable<string> required, IEnumerable<string> optional) ParseArguments(IEnumerable<string> arguments)
         {
-            var optionalParameters = new List<string>(); 
+            var optionalParameters = new List<string>();
             var requiredParameters = new List<string>();
 
-            for(var i = 0; i < arguments.Count(); ++i)
+            for (var i = 0; i < arguments.Count(); ++i)
             {
                 var currentArgument = arguments.ElementAt(i);
                 if (IsRequiredParameter.Validate(currentArgument))
@@ -48,7 +35,7 @@ namespace FluentRequests.Lib.States.Base
                     requiredParameters.Add(currentArgument);
                     continue;
                 }
-                
+
                 if (currentArgument.Contains("=") && currentArgument.Split('=').Length == 2)
                 {
                     optionalParameters.Add(currentArgument);
@@ -57,7 +44,7 @@ namespace FluentRequests.Lib.States.Base
 
                 if (currentArgument.Contains("=") == false && i + 2 < arguments.Count() && arguments.ElementAt(i + 1).Trim() == "=")
                 {
-                    optionalParameters.Add(currentArgument + arguments.ElementAt(i + 1) + arguments.ElementAt(i + 2));
+                    optionalParameters.Add(currentArgument.Trim() + arguments.ElementAt(i + 1).Trim() + arguments.ElementAt(i + 2).Trim());
                     i += 2;
                 }
             }
@@ -65,4 +52,7 @@ namespace FluentRequests.Lib.States.Base
             return (requiredParameters, optionalParameters);
         }
     }
+
+
+
 }
