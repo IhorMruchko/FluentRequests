@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="15.0.0">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>390</x>
+      <y>110</y>
+      <w>250</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;abstract class&gt;&gt;
+ArgumentBase
+--
++ Name : string
++ Help : string
+--
++ IsCalled(arguments: string[]) : bool
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>370</x>
+      <y>310</y>
+      <w>290</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;abstract class&gt;&gt;
+Argument&lt;TArgument&gt;
+--
++ Converter : Converter&lt;string, TArgument&gt;
++ Validator : Rule&lt;TArgument&gt;
++ Constraint : Rule&lt;TArgument&gt;
+--
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>500</x>
+      <y>210</y>
+      <w>30</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;100.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>620</x>
+      <y>490</y>
+      <w>290</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;class&gt;&gt;
+RequiredArgument&lt;TArgument&gt;
+--
++ BeginInit(): RequiredArgumentBuilder
+--
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>510</x>
+      <y>420</y>
+      <w>270</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;250.0;70.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>130</x>
+      <y>490</y>
+      <w>290</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;class&gt;&gt;
+OptionalArgument&lt;TArgument&gt;
+--
++ BeginInit(): OptionalArgumentBuilder
+--
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>270</x>
+      <y>420</y>
+      <w>260</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>240.0;10.0;10.0;70.0</additional_attributes>
+  </element>
+</diagram>
